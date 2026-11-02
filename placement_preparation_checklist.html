@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Placement Preparation Master Checklist</title>
+<style>
+:root{color-scheme:light dark;--bg:#f5f7fb;--panel:#fff;--text:#172033;--muted:#657086;--line:#e2e7ef;--accent:#2563eb;--good:#16a34a}
+@media(prefers-color-scheme:dark){:root{--bg:#101522;--panel:#192233;--text:#e8edf7;--muted:#a6b0c2;--line:#303c50;--accent:#78a6ff;--good:#4ade80}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:900px;margin:32px auto;padding:0 16px 48px}.hero,.group{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:14px}
+h1{font-size:clamp(24px,4vw,34px);line-height:1.15;margin:0 0 8px}.sub,.hint{color:var(--muted)}.stats{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:18px 0 8px}
+.percent{font-size:26px;font-weight:750;color:var(--good)}.track{height:10px;background:var(--line);border-radius:20px;overflow:hidden}.fill{height:100%;width:0;background:var(--good);transition:width .2s}
+.group-head{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer}.group-head h2{font-size:18px;margin:0}.count{color:var(--muted);font-size:13px}.items{padding-top:14px;display:grid;gap:9px}.item{display:flex;gap:10px;align-items:flex-start;padding:8px 4px;border-top:1px solid var(--line)}input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--good)}label{cursor:pointer;flex:1}.done label{text-decoration:line-through;color:var(--muted)}
+button{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:9px 13px;border-radius:10px;cursor:pointer;font-weight:600}button:hover{border-color:var(--accent)}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.hidden{display:none}.hint{font-size:12px;margin-top:12px}
+</style>
+</head>
+<body>
+<main>
+<section class="hero">
+<h1>Placement Preparation Master Checklist</h1>
+<p class="sub">Track your progress across DSA, Python, SQL, analytics, data engineering, AI, backend development, projects and interviews.</p>
+<div class="stats"><strong id="summary">0 of 0 topics completed</strong><span class="percent" id="percent">0%</span></div>
+<div class="track"><div class="fill" id="fill"></div></div>
+<div class="toolbar">
+<button id="expand">Expand all</button><button id="collapse">Collapse all</button><button id="reset">Reset checklist</button>
+</div>
+<p class="hint">Your ticks are saved automatically in this browser on this device. Use the same browser and do not clear its site data to retain progress. You can bookmark this file after opening it.</p>
+</section>
+<div id="checklist"></div>
+</main>
+<script>
+const groups = [
+["Programming and DSA",["Complexity analysis","Arrays and matrices","Strings","Linked lists","Stacks and queues","Hashing","Searching and sorting","Recursion and backtracking","Trees and heaps","Graphs","Greedy algorithms","Dynamic programming","Bit manipulation"]],
+["Python and OOP",["Python fundamentals","Data structures","Functions and comprehensions","OOP principles","Decorators and generators","Exception and file handling","Memory management and GIL","Multithreading and multiprocessing","Asyncio","SOLID and design patterns"]],
+["SQL and DBMS",["Database fundamentals and keys","DDL, DML, DQL, TCL, DCL","Filtering and aggregation","All SQL joins","Subqueries and CTEs","Window functions","Views and stored procedures","Indexes and query optimization","Normalization","ACID and transactions","NoSQL and MongoDB"]],
+["Data Analytics",["NumPy","Pandas","Data cleaning","EDA","Statistics and probability","Data visualization","Feature engineering","Power BI and DAX"]],
+["Data Engineering and Cloud",["ETL and ELT","Batch and streaming","CDC and incremental loading","Data pipeline architecture","Data warehouse and data lake","Dimensional modeling","AWS fundamentals","Azure and GCP fundamentals","Airflow and dbt","Snowflake and BigQuery","Spark and Kafka"]],
+["ML and Generative AI",["ML fundamentals","Regression and classification","Clustering and dimensionality reduction","Model evaluation","Imbalanced datasets","Regularization and optimization","ANN and CNN","RNN and LSTM","Transformers","LLMs and prompt engineering","Embeddings and vector databases","RAG","Agentic AI"]],
+["Backend and Software Engineering",["HTTP and REST APIs","FastAPI","Pydantic","Authentication and authorization","API security","Git and GitHub","Linux","Docker","CI/CD","Testing and debugging","System design"]],
+["Projects and Interviews",["Voxi+ deep dive","Activity Buddy deep dive","Prep Predict deep dive","Quest Pilot deep dive","Resume cross-question bank","Aptitude","HR questions","Technical presentation","Customer discovery and demos","Mock interviews"]]
+];
+const KEY="placementMasterChecklist.v1";
+let state={}; try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
+const open=new Set([groups[0][0]]);
+const root=document.getElementById("checklist");
+function render(){
+ root.innerHTML="";
+ groups.forEach(([name,items],gi)=>{
+  const section=document.createElement("section");section.className="group";
+  const head=document.createElement("div");head.className="group-head";
+  const title=document.createElement("h2");title.textContent=name;
+  const count=document.createElement("span");count.className="count";
+  const n=items.filter(x=>state[name+"|"+x]).length;count.textContent=`${n}/${items.length} completed`;
+  head.append(title,count);head.addEventListener("click",()=>{open.has(name)?open.delete(name):open.add(name);render()});
+  section.append(head);
+  if(open.has(name)){
+   const list=document.createElement("div");list.className="items";
+   items.forEach(item=>{
+    const id=name+"|"+item, row=document.createElement("div");row.className="item"+(state[id]?" done":"");
+    const cb=document.createElement("input");cb.type="checkbox";cb.checked=!!state[id];cb.id="c"+gi+"-"+items.indexOf(item);
+    cb.addEventListener("change",()=>{state[id]=cb.checked;localStorage.setItem(KEY,JSON.stringify(state));render()});
+    const label=document.createElement("label");label.htmlFor=cb.id;label.textContent=item;
+    row.append(cb,label);list.append(row);
+   });section.append(list);
+  }
+  root.append(section);
+ });
+ updateProgress();
+}
+function updateProgress(){let total=0,done=0;groups.forEach(([g,items])=>items.forEach(x=>{total++;if(state[g+"|"+x])done++}));document.getElementById("summary").textContent=`${done} of ${total} topics completed`;document.getElementById("percent").textContent=Math.round(done/total*100)+"%";document.getElementById("fill").style.width=(done/total*100)+"%"}
+document.getElementById("expand").onclick=()=>{groups.forEach(([g])=>open.add(g));render()};
+document.getElementById("collapse").onclick=()=>{open.clear();render()};
+document.getElementById("reset").onclick=()=>{if(confirm("Clear all completed ticks?")){state={};localStorage.removeItem(KEY);render()}};
+render();
+</script>
+</body>
+</html>
